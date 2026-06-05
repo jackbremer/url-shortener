@@ -1,0 +1,17 @@
+{
+  "name": "url-shortener",
+  "main": "src/index.js",
+  "compatibility_date": "2025-01-01",
+  "kv_namespaces": [
+    {
+      "binding": "URL_SHORTCUTS",
+      "id": "YOUR_KV_NAMESPACE_ID"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "YOUR_DOMAIN/*",
+      "zone_name": "YOUR_ZONE"
+    }
+  ]
+}
