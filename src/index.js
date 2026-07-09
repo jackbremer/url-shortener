@@ -1,5 +1,5 @@
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const incoming = new URL(request.url);
     let slug = incoming.pathname.slice(1);
 
@@ -49,10 +49,12 @@ export default {
       return new Response('Not found', { status: 404 });
     }
 
-    // Increment hit count (non-blocking — don't hold up the redirect)
-    env.DB.prepare(
-      'INSERT INTO hits (slug, count) VALUES (?, 1) ON CONFLICT (slug) DO UPDATE SET count = count + 1'
-    ).bind(slug).run();
+    // Increment hit count after response is sent
+    ctx.waitUntil(
+      env.DB.prepare(
+        'INSERT INTO hits (slug, count) VALUES (?, 1) ON CONFLICT (slug) DO UPDATE SET count = count + 1'
+      ).bind(slug).run()
+    );
 
     const dest = new URL(destination);
 
