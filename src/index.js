@@ -64,6 +64,6 @@ export default {
       dest.searchParams.append(key, value);
     }
 
-    return Response.redirect(dest.toString(), 301);
+    return Response.redirect(dest.toString(), 302);
   },
 };
