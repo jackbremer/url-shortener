@@ -1,0 +1,16 @@
+{
+  "name": "url-shortener",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8793",
+    "lint:diagrams": "maid docs/architecture.md"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
+  },
+  "devDependencies": {
+    "@probelabs/maid": "^0.0.29",
+    "wrangler": "^4.136.3"
+  }
+}
