@@ -184,13 +184,16 @@ For column C, add this formula in C2 and drag down (shows the short link, only w
 | `CF_API_TOKEN` | A Cloudflare API token — see below |
 | `CF_ACCOUNT_ID` | Your Cloudflare account ID (found in the Cloudflare dashboard sidebar) |
 | `CF_KV_NAMESPACE_ID` | The KV namespace ID from Cloudflare setup step 1 |
+| `CF_D1_DATABASE_ID` | The D1 database ID from Cloudflare setup step 2 *(only for the Hits column)* |
 
 **Creating the Cloudflare API token:**
 1. Go to [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens)
 2. **Create Token → Custom Token**
-3. Permissions: `Workers KV Storage` → `Edit`
+3. Permissions: `Workers KV Storage` → `Edit`. For the Hits column, also add `D1` → `Read`
 4. Scope it to your account
 5. Copy the token into Script Properties
+
+If you already have a token, you can edit it to add `D1` → `Read`. The token value stays the same.
 
 ### 4. Set up the on-edit trigger
 
@@ -210,6 +213,17 @@ For column C, add this formula in C2 and drag down (shows the short link, only w
 **Full Sync** — wipes all KV entries and re-pushes everything. Use this after deleting rows, so removed slugs stop redirecting:
 1. **Insert → Drawing** → draw a rectangle, label it "Full Sync"
 2. Click the drawing → three-dot menu → **Assign script** → `fullSyncToCloudflare`
+
+### 6. Add a Hits column (optional, needs hit tracking)
+
+`refreshHits` copies the all-time click count for each slug from D1 into the sheet.
+
+1. Add a column with `Hits` in row 1. It can go anywhere; the script finds it by the header.
+2. Add `CF_D1_DATABASE_ID` to Script Properties and `D1` → `Read` to the token (step 3)
+3. Run `refreshHits` once from the Apps Script editor to check it works
+4. To keep it current: **Triggers → + Add Trigger**, function `refreshHits`, event source **Time-driven**, e.g. every hour. You can also assign it to a "Refresh Hits" drawing like the buttons above.
+
+Writes made by a script don't fire the on-edit trigger, so refreshing hits doesn't trigger a KV sync.
 
 ---
 
@@ -231,14 +245,19 @@ Within a few seconds, `go.yourdomain.com/blog` redirects to your destination.
 `go.yourdomain.com/blog?ref=twitter` → `https://my-blog.com/post?existing=param&ref=twitter`
 
 **Stats page** *(if hit tracking is enabled)*:
-`go.yourdomain.com/blog+` shows the all-time click count and destination URL for that slug.
+`go.yourdomain.com/blog+` shows the all-time click count and destination URL for that slug, plus a QR code for the short link with SVG and PNG downloads. The QR is generated in the Worker, so no third-party QR service is involved.
+
+**Testing a link without counting it:**
+`go.yourdomain.com/blog?notrack` redirects as normal but doesn't add a hit. The `notrack` param is stripped before forwarding, so you can combine it with others to test param forwarding: `go.yourdomain.com/blog?notrack&ref=test`. The stats page has a "Test the short link" link that does this.
+
+There's no industry standard for this. Bitly and others simply count everything. Hit counts also include link-preview bots (Slack, iMessage, WhatsApp fetch the URL to build a preview), so treat the number as an upper bound.
 
 ---
 
 ## Security
 
 - Your Google Sheet is private — not published, not shared
-- The Cloudflare API token stored in Apps Script has minimal scope (KV edit only)
+- The Cloudflare API token stored in Apps Script has minimal scope (KV edit, plus D1 read if you use the Hits column)
 - The Worker never exposes a list of slugs — unknown slugs return a plain 404
 - Hit counts are public (via the `slug+` page) but contain no personal data
 
