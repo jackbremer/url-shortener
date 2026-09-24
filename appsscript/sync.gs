@@ -10,6 +10,8 @@
  *   CF_API_TOKEN       — Cloudflare API token with Workers KV Storage:Edit permission
  *   CF_ACCOUNT_ID      — Your Cloudflare account ID
  *   CF_KV_NAMESPACE_ID — The KV namespace ID for URL_SHORTCUTS
+ *   CF_D1_DATABASE_ID  — The D1 database ID for url-shortener-hits (only needed for refreshHits,
+ *                        and the token then also needs D1 Read permission)
  */
 
 function syncToCloudflare() {
@@ -140,4 +142,58 @@ function fullSyncToCloudflare() {
     'All ' + (data.length - 1) + ' slugs synced, ' + existingKeys.length + ' old entries removed.',
     'Full Sync Complete'
   );
+}
+
+/**
+ * Pulls all-time click counts from Cloudflare D1 into the column headed "Hits".
+ * The column can sit anywhere; it's found by its header in row 1.
+ * Run it from a button, or add a time-driven trigger (e.g. every hour).
+ * Writes made by a script don't fire the on-edit trigger, so this won't cause a KV sync.
+ */
+function refreshHits() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var props = PropertiesService.getScriptProperties();
+  var token = props.getProperty('CF_API_TOKEN');
+  var accountId = props.getProperty('CF_ACCOUNT_ID');
+  var dbId = props.getProperty('CF_D1_DATABASE_ID');
+
+  if (!token || !accountId || !dbId) {
+    throw new Error('Missing Script Properties. Set CF_API_TOKEN, CF_ACCOUNT_ID, and CF_D1_DATABASE_ID.');
+  }
+
+  var hitsCol = data[0].map(function(h) { return String(h).trim().toLowerCase(); }).indexOf('hits');
+  if (hitsCol === -1) {
+    throw new Error('No "Hits" column found. Add a column with "Hits" in row 1.');
+  }
+
+  var response = UrlFetchApp.fetch(
+    'https://api.cloudflare.com/client/v4/accounts/' + accountId +
+    '/d1/database/' + dbId + '/query',
+    {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      payload: JSON.stringify({ sql: 'SELECT slug, count FROM hits' }),
+      muteHttpExceptions: true,
+    }
+  );
+
+  if (response.getResponseCode() !== 200) {
+    throw new Error('Failed to query D1: HTTP ' + response.getResponseCode() + '\n' + response.getContentText());
+  }
+
+  var counts = {};
+  JSON.parse(response.getContentText()).result[0].results.forEach(function(row) {
+    counts[row.slug] = row.count;
+  });
+
+  if (data.length < 2) return;
+
+  var values = [];
+  for (var i = 1; i < data.length; i++) {
+    var slug = String(data[i][0]).trim();
+    values.push([slug ? (counts[slug] || 0) : '']);
+  }
+
+  sheet.getRange(2, hitsCol + 1, values.length, 1).setValues(values);
 }
