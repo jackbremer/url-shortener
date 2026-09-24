@@ -16,7 +16,8 @@ flowchart TD
   end
   subgraph s4["4 . Serve"]
     worker["Worker src/index.js<br>302 redirect, ?notrack skips count"]
-    stats{{"Stats page slug+<br>count, test link, QR download"}}
+    stats{{"Stats page slug+<br>count, test link, QR"}}
+    qr["QR images slug+qr.png, slug+qr.svg<br>generated in the Worker"]
   end
   visitor(["Visitor or QR scan"])
   dest(["Destination site"])
@@ -29,12 +30,15 @@ flowchart TD
   worker -->|count +1| d1
   worker --> dest
   worker --> stats
+  worker --> qr
+  sheet -->|QR column links| qr
+  stats --> qr
   refresh -.->|REST query| d1
   refresh -.->|writes Hits| sheet
 
   classDef built fill:#e9f6ef,stroke:#0d9268,stroke-width:2px,color:#111
   classDef todo fill:#fdeceb,stroke:#e03131,stroke-width:2px,color:#111
-  class editor,sheet,sync,kv,d1,worker,stats,visitor,dest built
+  class editor,sheet,sync,kv,d1,worker,stats,qr,visitor,dest built
   class refresh todo
 ```
 
@@ -44,6 +48,6 @@ Shapes: stadium = outside world, rectangle = code that runs, cylinder = data sto
 
 | Piece | State | Evidence |
 |---|---|---|
-| `refreshHits` | Code written on `feature/hits-qr-notrack`, not pasted into Apps Script yet | `appsscript/sync.gs`; needs `CF_D1_DATABASE_ID` property and D1 Read on the token |
+| `refreshHits` | In Apps Script, but the D1 query returns 403 (7403) | `appsscript/sync.gs`; token needs Account, D1, Read on the account in `CF_ACCOUNT_ID` |
 
-The stats page QR and `?notrack` ship with the Worker on the same branch. They go live when it's merged and Workers Builds deploys.
+The QR image routes are on `feature/worker-qr-png` and go live when it's merged.
