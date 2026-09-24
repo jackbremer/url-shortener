@@ -33,21 +33,16 @@ flowchart TD
   worker --> qr
   sheet -->|QR column links| qr
   stats --> qr
-  refresh -.->|REST query| d1
-  refresh -.->|writes Hits| sheet
+  refresh -->|REST query| d1
+  refresh -->|writes Hits| sheet
 
   classDef built fill:#e9f6ef,stroke:#0d9268,stroke-width:2px,color:#111
   classDef todo fill:#fdeceb,stroke:#e03131,stroke-width:2px,color:#111
-  class editor,sheet,sync,kv,d1,worker,stats,qr,visitor,dest built
-  class refresh todo
+  class editor,sheet,sync,refresh,kv,d1,worker,stats,qr,visitor,dest built
 ```
 
 Shapes: stadium = outside world, rectangle = code that runs, cylinder = data store, hexagon = UI surface, circle = human step.
 
 ## Not built yet
 
-| Piece | State | Evidence |
-|---|---|---|
-| `refreshHits` | In Apps Script, but the D1 query returns 403 (7403) | `appsscript/sync.gs`; token needs Account, D1, Read on the account in `CF_ACCOUNT_ID` |
-
-The QR image routes are on `feature/worker-qr-png` and go live when it's merged.
+Nothing. Parked idea: extra domains, possibly in other Cloudflare accounts via Cloudflare for SaaS custom hostnames.

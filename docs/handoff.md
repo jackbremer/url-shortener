@@ -1,5 +1,16 @@
 # Handoff
 
+## 2026-09-24: all live
+
+- PR #1 and #2 merged and deployed via Workers Builds
+- Apps Script uses one token, `3b-cf-kv-d1-read-url-shortener` in 1Password (Account: Workers KV Storage Edit, D1 Read). The old KV-only token can be deleted
+- `refreshHits` and `syncToCloudflare` both run cleanly; Hits column filled
+
+Next:
+- Swap the sheet QR formula to `=IF(C2<>"",C2&"+qr.png","")` if not done, and scan one
+- Set the hourly time-driven trigger for `refreshHits` if not done
+- Don't delete the "CF Workers build on deploy from github" token; Workers Builds needs it
+
 ## 2026-09-24: QR images from the Worker
 
 Done (branch `feature/worker-qr-png`):
@@ -9,7 +20,6 @@ Done (branch `feature/worker-qr-png`):
 
 Next:
 - After deploy, change the sheet QR formula to `=IF(C2<>"",C2&"+qr.png","")` and scan one to confirm
-- `refreshHits` gets 403 code 7403 from D1: the token needs Account, D1, Read on the right account
 
 Gotchas:
 - `wrangler dev` can leave a `workerd` process holding port 8793 after wrangler is killed. Kill workerd too
