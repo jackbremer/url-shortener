@@ -168,6 +168,11 @@ For column C, add this formula in C2 and drag down (shows the short link, only w
 =IF(AND(A2<>"",B2<>""),"https://go.yourdomain.com/"&A2,"")
 ```
 
+To add a QR column, put this in the next free column (it links to a PNG the Worker generates, assuming the short URL is in column C):
+```
+=IF(C2<>"",C2&"+qr.png","")
+```
+
 ### 2. Add the Apps Script
 
 1. In your sheet: **Extensions → Apps Script**
@@ -245,7 +250,10 @@ Within a few seconds, `go.yourdomain.com/blog` redirects to your destination.
 `go.yourdomain.com/blog?ref=twitter` → `https://my-blog.com/post?existing=param&ref=twitter`
 
 **Stats page** *(if hit tracking is enabled)*:
-`go.yourdomain.com/blog+` shows the all-time click count and destination URL for that slug, plus a QR code for the short link with SVG and PNG downloads. The QR is generated in the Worker, so no third-party QR service is involved.
+`go.yourdomain.com/blog+` shows the all-time click count and destination URL for that slug, plus a QR code for the short link with PNG and SVG downloads.
+
+**QR codes:**
+`go.yourdomain.com/blog+qr.png` (about 1000px) and `go.yourdomain.com/blog+qr.svg` return a QR code for the short link. The Worker generates them, so no third-party QR service is involved, and the sheet and stats page show the same code. Unknown slugs return 404. Loading a QR image doesn't count as a hit; scanning it does.
 
 **Testing a link without counting it:**
 `go.yourdomain.com/blog?notrack` redirects as normal but doesn't add a hit. The `notrack` param is stripped before forwarding, so you can combine it with others to test param forwarding: `go.yourdomain.com/blog?notrack&ref=test`. The stats page has a "Test the short link" link that does this.

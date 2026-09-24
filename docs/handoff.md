@@ -1,5 +1,19 @@
 # Handoff
 
+## 2026-09-24: QR images from the Worker
+
+Done (branch `feature/worker-qr-png`):
+- `slug+qr.png` and `slug+qr.svg` routes. The PNG uses a small encoder in `src/index.js` (CompressionStream for the zlib data), so there's no extra dependency
+- Stats page shows and downloads these instead of building its own, so the sheet and stats page match
+- Tested locally: PNG valid (990px greyscale), SVG served, unknown slug 404
+
+Next:
+- After deploy, change the sheet QR formula to `=IF(C2<>"",C2&"+qr.png","")` and scan one to confirm
+- `refreshHits` gets 403 code 7403 from D1: the token needs Account, D1, Read on the right account
+
+Gotchas:
+- `wrangler dev` can leave a `workerd` process holding port 8793 after wrangler is killed. Kill workerd too
+
 ## 2026-09-23: Hits column, stats page QR, ?notrack
 
 Done (branch `feature/hits-qr-notrack`):
