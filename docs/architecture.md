@@ -18,6 +18,7 @@ flowchart TD
     worker["Worker src/index.js<br>302 redirect, ?notrack skips count"]
     stats{{"Stats page slug+<br>count, test link, QR"}}
     qr["QR images slug+qr.png, slug+qr.svg<br>generated in the Worker"]
+    gen{{"QR generator /qr<br>runs in the browser, no tracking"}}
   end
   visitor(["Visitor or QR scan"])
   dest(["Destination site"])
@@ -33,12 +34,13 @@ flowchart TD
   worker --> qr
   sheet -->|QR column links| qr
   stats --> qr
+  worker --> gen
   refresh -->|REST query| d1
   refresh -->|writes Hits| sheet
 
   classDef built fill:#e9f6ef,stroke:#0d9268,stroke-width:2px,color:#111
   classDef todo fill:#fdeceb,stroke:#e03131,stroke-width:2px,color:#111
-  class editor,sheet,sync,refresh,kv,d1,worker,stats,qr,visitor,dest built
+  class editor,sheet,sync,refresh,kv,d1,worker,stats,qr,gen,visitor,dest built
 ```
 
 Shapes: stadium = outside world, rectangle = code that runs, cylinder = data store, hexagon = UI surface, circle = human step.

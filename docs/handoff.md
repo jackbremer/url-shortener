@@ -1,5 +1,21 @@
 # Handoff
 
+## 2026-10-07: QR generator at /qr
+
+Done (branch `feature/qr-generator`):
+- `/qr` page (`src/qr-page.js`): link/text, Wi-Fi, phone, SMS, email and contact (vCard 3.0), with PNG (about 1000px) and SVG downloads, no margin
+- Runs in the browser. The library loads from jsDelivr, pinned to 2.0.4 with an integrity hash
+- Library default encoding drops non-ASCII; the page switches it to UTF-8
+- Tested in the browser pane: every type's PNG decodes back to its exact payload (BarcodeDetector), including UTF-8; over-long input shows an error; no sideways scroll at 375px
+
+Next:
+- Scan a Wi-Fi and a contact code with a real iPhone and Android phone
+
+Gotchas:
+- `qr` is now a reserved path, not usable as a slug
+- Don't add a long Cache-Control to the page; browsers then keep the old version after a deploy
+- When upgrading qrcode-generator, update the jsDelivr URL and integrity hash in `src/qr-page.js` too: `openssl dgst -sha384 -binary node_modules/qrcode-generator/dist/qrcode.js | openssl base64 -A`
+
 ## 2026-09-24: all live
 
 - PR #1 and #2 merged and deployed via Workers Builds
