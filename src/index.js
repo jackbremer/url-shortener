@@ -1,4 +1,5 @@
 import { qrcode } from 'qrcode-generator';
+import { QR_PAGE } from './qr-page.js';
 
 // Add ?notrack to a short URL to follow it without adding a hit.
 // It is stripped before the query params are forwarded to the destination.
@@ -87,6 +88,13 @@ export default {
   async fetch(request, env, ctx) {
     const incoming = new URL(request.url);
     let slug = incoming.pathname.slice(1);
+
+    // QR generator page: go.domain.com/qr (so "qr" can't be used as a slug)
+    if (slug === 'qr') {
+      return new Response(QR_PAGE, {
+        headers: { 'Content-Type': 'text/html;charset=utf-8' },
+      });
+    }
 
     // QR image: go.domain.com/slug+qr.png or slug+qr.svg
     const qrAt = slug.lastIndexOf(QR_SUFFIX);
