@@ -255,6 +255,11 @@ Within a few seconds, `go.yourdomain.com/blog` redirects to your destination.
 **QR codes:**
 `go.yourdomain.com/blog+qr.png` (about 1000px, no white border) and `go.yourdomain.com/blog+qr.svg` return a QR code for the short link. The Worker generates them, so no third-party QR service is involved, and the sheet and stats page show the same code. Unknown slugs return 404. Loading a QR image doesn't count as a hit; scanning it does.
 
+**QR generator:**
+`go.yourdomain.com/qr` makes a QR code for anything: a link or text, Wi-Fi details, a phone number, an SMS, an email or a contact card, with PNG and SVG downloads. It runs entirely in the browser, so what you type (Wi-Fi passwords included) never reaches the Worker and nothing is counted. This reserves `qr`, so don't use it as a slug.
+
+The formats follow the [ZXing conventions](https://github.com/zxing/zxing/wiki/Barcode-Contents) that iPhone and Android cameras read. For WPA3 Wi-Fi the type is still `WPA` (with `R:1` for WPA3-only networks); generators that write `T:SAE` or `T:WPA3` make codes phones can't use.
+
 **Testing a link without counting it:**
 `go.yourdomain.com/blog?notrack` redirects as normal but doesn't add a hit. The `notrack` param is stripped before forwarding, so you can combine it with others to test param forwarding: `go.yourdomain.com/blog?notrack&ref=test`. The stats page has a "Test the short link" link that does this.
 
