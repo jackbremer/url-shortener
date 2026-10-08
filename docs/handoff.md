@@ -6,10 +6,8 @@ Done (branch `feature/qr-generator`):
 - `/qr` page (`src/qr-page.js`): link/text, Wi-Fi, phone, SMS, email and contact (vCard 3.0), with PNG (about 1000px) and SVG downloads, no margin
 - Runs in the browser. The library loads from jsDelivr, pinned to 2.0.4 with an integrity hash
 - Library default encoding drops non-ASCII; the page switches it to UTF-8
-- Tested in the browser pane: every type's PNG decodes back to its exact payload (BarcodeDetector), including UTF-8; over-long input shows an error; no sideways scroll at 375px
-
-Next:
-- Scan a Wi-Fi and a contact code with a real iPhone and Android phone
+- Tested in the browser pane: link/text, Wi-Fi, phone and contact PNGs decode back to their exact payload (BarcodeDetector), including UTF-8; SMS and email payloads checked as text; over-long input shows an error; no sideways scroll at 375px
+- Live and checked on go.3bweb.com/qr, and Jack tested the codes on a real phone
 
 Gotchas:
 - `qr` is now a reserved path, not usable as a slug
